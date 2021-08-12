@@ -41,7 +41,7 @@ class ChannelManager(commands.Cog):
 
         self.chnls[chname] = pwd
 
-        channel = await self.guild.create_voice_channel(chname, overwrites=permissions)
+        channel = await ctx.guild.create_voice_channel(chname, overwrites=permissions)
         if ctx.author.voice:
             await ctx.author.move_to(channel)
 
