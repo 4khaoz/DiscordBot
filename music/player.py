@@ -81,11 +81,11 @@ class Player(commands.Cog):
         # Extract Youtube Video Data
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
+                if "https://" in arg:
+                    info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
+                else:
+                    info = ydl.extract_info(arg[0], download=False)
             except:
-                info = ydl.extract_info(arg, download=False)
-
-            if not info:
                 raise youtube_dl.utils.DownloadError('RIP')
             
             title = info['title']
