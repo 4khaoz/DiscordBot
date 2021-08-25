@@ -1,7 +1,6 @@
 from discord.ext import commands
 from discord.utils import get
 from .song import Song
-from .songqueue import SongQueue
 import asyncio
 import discord
 import youtube_dl
@@ -72,7 +71,7 @@ class Player(commands.Cog):
                 'preferredquality': '192'
             }],
             'restrictfilenames': True,
-            'noplaylist': False,
+            'noplaylist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': False,
