@@ -63,6 +63,7 @@ class Player(commands.Cog):
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
     def load_song(self, arg: str):
+        """
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -77,11 +78,22 @@ class Player(commands.Cog):
             'logtostderr': False,
             'no_warnings': True,
         }
+        """
+
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'restrictfilenames': True,
+            'noplaylist': True,
+            'nocheckcertificate': True,
+            'ignoreerrors': False,
+            'logtostderr': False,
+            'no_warnings': True,
+        }
 
         # Extract Youtube Video Data
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                if "https://" not in arg:
+                if "https://" not in arg[0]:
                     info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
                 else:
                     info = ydl.extract_info(arg[0], download=False)
