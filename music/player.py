@@ -81,10 +81,8 @@ class Player(commands.Cog):
         # Extract Youtube Video Data
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                print("Yt search")
                 info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
             except:
-                print("Yt arg")
                 info = ydl.extract_info(arg, download=False)
 
             if not info:
