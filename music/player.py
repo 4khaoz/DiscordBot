@@ -63,23 +63,6 @@ class Player(commands.Cog):
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
     def load_song(self, arg: str):
-        """
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192'
-            }],
-            'restrictfilenames': True,
-            'noplaylist': True,
-            'nocheckcertificate': True,
-            'ignoreerrors': False,
-            'logtostderr': False,
-            'no_warnings': True,
-        }
-        """
-
         ydl_opts = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
