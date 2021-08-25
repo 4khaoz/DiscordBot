@@ -3,9 +3,6 @@ from discord.ext import commands
 from discord.utils import get
 import asyncio
 import os
-#import urllib.parse
-#import urllib.request
-#import re
 
 import music.player
 import channel.channelmanager
@@ -55,45 +52,6 @@ async def on_voice_state_update(member, before, after):
     if before.channel:
         await proto.send(f"{member} left {after.channel}")
 
-"""
-OUTDATED
-"""
-"""
-#
-# COMMANDS
-#
-@bot.command(pass_context=True, aliases=['s'])
-async def search(ctx, *title):
-    await ctx.send("Searching...")
-    query_url = "https://www.youtube.com/results?search_query=" + "+".join(title)
-    content = urllib.request.urlopen(query_url)
-    print(f"Querying {query_url}")
-
-    search_results = re.findall(r"/watch\?v=(\S{11})", content.read().decode())
-    search_results = list(dict.fromkeys(search_results))
-
-    print(f"Number of Search Results: {len(search_results)}")
-
-    # Message to display #
-    list_str = "```"
-    limit = 5
-    i = 0
-    for results in search_results:
-        if i >= limit:
-            break
-        url = "<https://www.youtube.com/watch?v=" + results + ">"
-        vid_title = "FAILED TO RETRIEVE TITLE"
-        try:
-            if "\"liveStreamability\":{" not in YouTube(url).watch_html:
-                vid_title = YouTube(url).title
-        except pytube.exceptions.LiveStreamError:
-            print("LiveStreamError: Failed to retrieve video for " + url)
-        list_str += str(i) + ".  " + "".join(vid_title) + "\n" + url + "\n\n"
-        i += 1
-
-    list_str += "```"
-    await ctx.send(list_str)
-"""
 @bot.command(pass_context=True, aliases=['h'])
 async def help(ctx):
     target = ctx.author
@@ -107,20 +65,14 @@ async def help(ctx):
     embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/567471897282084875/662486195498123286/diaochan.jpg")
     embed.add_field(
         name="Play Music",
-        value="***!play <url>***\n"
-            "Plays the Youtube Video (audio-only, cuz meant for Music)",
+        value="***!play <arg>***\n"
+            "Plays the Youtube Video (audio-only, cuz meant for Music). <arg> can be the title or URL",
         inline=False
     )
     embed.add_field(
         name="Stop Music",
         value="***!stop***\n"
             "Stops Music from Playing",
-        inline=False
-    )
-    embed.add_field(
-        name="Search Video",
-        value="***!search <keywords>***\n"
-            f"Search Youtube Videos. {bot.user.name} returns Video Title and Link",
         inline=False
     )
     embed.add_field(
