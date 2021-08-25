@@ -46,11 +46,16 @@ async def on_message_delete(message):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    if after.channel:
-        await proto.send(f"{member} joined {after.channel}")
+    if not (before.self_mute or before.self_deaf) and not (after.self_mute or after.self_deaf):
+        a = ""
+        b = ""
+        if after.channel:
+            a = f" joined {after.channel}."
 
-    if before.channel:
-        await proto.send(f"{member} left {after.channel}")
+        if before.channel:
+            b = f" left {before.channel}."    
+        
+        await proto.send(f"{member}{b}{a}")      
 
 @bot.command(pass_context=True, aliases=['h'])
 async def help(ctx):

@@ -60,7 +60,7 @@ class Player(commands.Cog):
             discord.FFmpegPCMAudio(song.source, **FFMPEG_OPTS), 
             after=lambda e: print(f"{song.title} has finished playing")
         )
-        self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=0.1)
+        self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
     def load_song(self, arg: str):
         ydl_opts = {
@@ -88,7 +88,7 @@ class Player(commands.Cog):
                 info = ydl.extract_info(arg, download=False)
 
             if not info:
-                raise DownloadError('RIP')
+                raise youtube_dl.utils.DownloadError('RIP')
             
             title = info['title']
             source = info['formats'][0]['url']
@@ -107,7 +107,7 @@ class Player(commands.Cog):
                 vol = 100
 
             self.voice_volume = vol / 100
-            print("Volume: " + str(voice_volume))
+            print("Volume: " + str(self.voice_volume))
 
             self.voice_client.source.volume = self.voice_volume
             await ctx.send(f"Changed Volume to {vol}")
@@ -115,9 +115,8 @@ class Player(commands.Cog):
             print("Failed to change volume")
             return
 
-
     @commands.command(pass_context=True)
-    async def leave(ctx):
-        if voice and voice.is_connected():
+    async def leave(self, ctx):
+        if self.voice and self.voice.is_connected():
             await ctx.send("See u next time")
-            await voice.disconnect()
+            await self.voice.disconnect()
