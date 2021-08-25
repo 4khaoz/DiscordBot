@@ -81,7 +81,7 @@ class Player(commands.Cog):
         # Extract Youtube Video Data
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             try:
-                if "https://" in arg:
+                if "https://" not in arg:
                     info = ydl.extract_info(f"ytsearch:{arg}", download=False)['entries'][0]
                 else:
                     info = ydl.extract_info(arg[0], download=False)
