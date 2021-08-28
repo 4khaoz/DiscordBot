@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord.utils import get
-from .song import Song
+from .song import Song, SongQueue
 import asyncio
 import discord
 import youtube_dl
@@ -12,6 +12,7 @@ class Player(commands.Cog):
         self.voice_volume = 0.1
         self.is_playing = False
         self.bot = bot
+        self.queue = SongQueue()
 
     @commands.command()
     async def connect(self, ctx, channel: discord.VoiceChannel):
@@ -40,9 +41,21 @@ class Player(commands.Cog):
     async def play(self, ctx, *arg: str):
         await self.connect(ctx, ctx.message.author.voice.channel)
         
-        song = self.load_song(arg)
-        self.voice_client.stop()
-        
+        self.queue.addSongToQueue(self.load_song(arg))
+
+        if (not self.is_playing):
+            await self.playSong(ctx)
+        else:
+            await ctx.send("Added song to Queue")
+
+    async def playSong(self, ctx):  
+        if (not self.queue.queue):
+            self.is_playing = False
+            return
+
+        song = self.queue.getNextSong()
+        self.is_playing = True
+
         # Sending Embed of Song
         embed = discord.Embed(
             title=f"Now Playing",
@@ -58,9 +71,18 @@ class Player(commands.Cog):
 
         self.voice_client.play(
             discord.FFmpegPCMAudio(song.source, **FFMPEG_OPTS), 
-            after=lambda e: print(f"{song.title} has finished playing")
+            after=lambda e: self.playNextSong(ctx, e)
         )
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
+
+    def playNextSong(self, ctx, e):
+        """
+        Function to create asyncio task to play the next song
+        Called in playSong() through lambda
+        """
+        task = self.playSong(ctx)
+
+        self.bot.loop.create_task(task)
 
     def load_song(self, arg: str):
         ydl_opts = {
@@ -113,3 +135,21 @@ class Player(commands.Cog):
         if self.voice and self.voice.is_connected():
             await ctx.send("See u next time")
             await self.voice.disconnect()
+
+    @commands.command()
+    async def queue(self, ctx):
+        if not self.queue.queue:
+            await ctx.send("Queue is empty")
+            return
+        
+        # Sending Embed of Queue
+        embed = discord.Embed(
+            title=f"Songs in Queue"
+        )
+        for song in self.queue.queue:
+            embed.add_field(
+                name=song.title,
+                value=song.url,
+                inline=False
+            )
+        await ctx.send(embed=embed)

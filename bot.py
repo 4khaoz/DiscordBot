@@ -46,6 +46,9 @@ async def on_message_delete(message):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    if member == bot.user:
+        return
+        
     if not (before.self_mute or before.self_deaf) and not (after.self_mute or after.self_deaf):
         a = ""
         b = ""
