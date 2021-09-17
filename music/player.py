@@ -75,6 +75,11 @@ class Player(commands.Cog):
         )
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
+    @commands.command()
+    async def skip(self, ctx):
+        self.voice_client.stop()
+        self.playNextSong(ctx, 0)
+
     def playNextSong(self, ctx, e):
         """
         Function to create asyncio task to play the next song
@@ -132,9 +137,9 @@ class Player(commands.Cog):
 
     @commands.command(pass_context=True)
     async def leave(self, ctx):
-        if self.voice and self.voice.is_connected():
+        if self.voice_client and self.voice_client.is_connected():
             await ctx.send("See u next time")
-            await self.voice.disconnect()
+            await self.voice_client.disconnect()
 
     @commands.command()
     async def queue(self, ctx):
