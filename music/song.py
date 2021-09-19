@@ -14,6 +14,6 @@ class SongQueue:
         self.queue.append(s)
 
     def getNextSong(self):
-        if (not self.queue):
+        if not self.queue:
             return None
         return self.queue.pop(0)

@@ -1,9 +1,8 @@
 from discord.ext import commands
-from discord.utils import get
 from .song import Song, SongQueue
-import asyncio
 import discord
 import youtube_dl
+
 
 class Player(commands.Cog):
 
@@ -22,7 +21,7 @@ class Player(commands.Cog):
         if self.voice_client is None:
             self.voice_client = await channel.connect()
             await ctx.send(f"Joined {channel}")
-        
+
         # Already connected and in the right channel
         if self.voice_client.channel == channel and self.voice_client.is_connected():
             return
@@ -34,22 +33,22 @@ class Player(commands.Cog):
         # Move Voice
         if self.voice_client.is_connected():
             await self.voice_client.move_to(channel)
-        
+
         await ctx.send(f"Joined {channel}")
 
     @commands.command(pass_context=True)
     async def play(self, ctx, *arg: str):
         await self.connect(ctx, ctx.message.author.voice.channel)
-        
-        self.queue.addSongToQueue(self.load_song(arg))
 
-        if (not self.is_playing):
-            await self.playSong(ctx)
+        self.queue.addSongToQueue(self.__load_song(arg))
+
+        if not self.is_playing:
+            await self.__playSong(ctx)
         else:
             await ctx.send("Added song to Queue")
 
-    async def playSong(self, ctx):  
-        if (not self.queue.queue):
+    async def __playSong(self, ctx):
+        if not self.queue.queue:
             self.is_playing = False
             return
 
@@ -65,31 +64,32 @@ class Player(commands.Cog):
         await ctx.send(embed=embed)
 
         FFMPEG_OPTS = {
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
             'options': '-vn'
         }
 
         self.voice_client.play(
-            discord.FFmpegPCMAudio(song.source, **FFMPEG_OPTS), 
-            after=lambda e: self.playNextSong(ctx, e)
+            discord.FFmpegPCMAudio(song.source, **FFMPEG_OPTS),
+            after=lambda e: self.__playNextSong(ctx, e)
         )
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
     @commands.command()
     async def skip(self, ctx):
         self.voice_client.stop()
-        self.playNextSong(ctx, 0)
+        self.__playNextSong(ctx, 0)
 
-    def playNextSong(self, ctx, e):
+    def __playNextSong(self, ctx, e):
         """
         Function to create asyncio task to play the next song
         Called in playSong() through lambda
         """
-        task = self.playSong(ctx)
+        task = self.__playSong(ctx)
 
         self.bot.loop.create_task(task)
 
-    def load_song(self, arg: str):
+    @staticmethod
+    def __load_song(arg: str):
         ydl_opts = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
@@ -109,7 +109,7 @@ class Player(commands.Cog):
                     info = ydl.extract_info(arg[0], download=False)
             except:
                 raise youtube_dl.utils.DownloadError('RIP')
-            
+
             title = info['title']
             source = info['formats'][0]['url']
             url = "https://www.youtube.com/watch?v=" + info['id']
@@ -146,7 +146,7 @@ class Player(commands.Cog):
         if not self.queue.queue:
             await ctx.send("Queue is empty")
             return
-        
+
         # Sending Embed of Queue
         embed = discord.Embed(
             title=f"Songs in Queue"

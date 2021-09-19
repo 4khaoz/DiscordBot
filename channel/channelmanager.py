@@ -60,7 +60,7 @@ class ChannelManager(commands.Cog):
             await ctx.send("Please join a Voice-Channel to be eventually moved")
             return
 
-        if (self.chnls[chname] == pwd):
+        if self.chnls[chname] == pwd:
             for channel in ctx.guild.channels:
                 if channel.name == chname:
                     print(f"Moving {ctx.author} to {channel}")

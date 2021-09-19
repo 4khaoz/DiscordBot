@@ -1,7 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.utils import get
-import asyncio
 import os
 
 import music.player
@@ -14,6 +12,7 @@ bot = commands.Bot(command_prefix="!", help_command=None)
 
 guild = 0
 proto = 0
+
 
 #
 # EVENTS
@@ -34,21 +33,24 @@ async def on_ready():
 
     await bot.change_presence(activity=discord.Game("Nothing"))
 
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
     await bot.process_commands(message)
 
+
 @bot.event
 async def on_message_delete(message):
     await proto.send(f"Msg by {message.author.name} deleted:\n\"" + message.content + "\"")
+
 
 @bot.event
 async def on_voice_state_update(member, before, after):
     if member == bot.user:
         return
-        
+
     if not (before.self_mute or before.self_deaf) and not (after.self_mute or after.self_deaf):
         a = ""
         b = ""
@@ -56,9 +58,10 @@ async def on_voice_state_update(member, before, after):
             a = f" joined {after.channel}."
 
         if before.channel:
-            b = f" left {before.channel}."    
-        
-        await proto.send(f"{member}{b}{a}")      
+            b = f" left {before.channel}."
+
+        await proto.send(f"{member}{b}{a}")
+
 
 @bot.command(pass_context=True, aliases=['h'])
 async def help(ctx):
@@ -74,21 +77,22 @@ async def help(ctx):
     embed.add_field(
         name="Play Music",
         value="***!play <arg>***\n"
-            "Plays the Youtube Video (audio-only, cuz meant for Music). <arg> can be the title or URL",
+              "Plays the Youtube Video (audio-only, cuz meant for Music). <arg> can be the title or URL",
         inline=False
     )
     embed.add_field(
         name="Stop Music",
         value="***!stop***\n"
-            "Stops Music from Playing",
+              "Stops Music from Playing",
         inline=False
     )
     embed.add_field(
         name="Set Volume",
         value="***!volume <value>***\n"
-            "Change the audio volume (value: 1-100)",
+              "Change the audio volume (value: 1-100)",
         inline=False
     )
     await target.send(embed=embed)
+
 
 bot.run(os.getenv('DCTOKEN'), bot=True)
