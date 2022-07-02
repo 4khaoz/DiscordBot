@@ -6,7 +6,7 @@ import youtube_dl
 
 class Player(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.voice_client = None
         self.voice_volume = 0.1
         self.is_playing = False
@@ -14,7 +14,7 @@ class Player(commands.Cog):
         self.queue = SongQueue()
 
     @commands.command()
-    async def connect(self, ctx, channel: discord.VoiceChannel):
+    async def connect(self, ctx: commands.Context, channel: discord.VoiceChannel):
         """
         Connecting the bot to a Voice Channel
         """
@@ -37,7 +37,7 @@ class Player(commands.Cog):
         await ctx.send(f"Joined {channel}")
 
     @commands.command(pass_context=True)
-    async def play(self, ctx, *arg: str):
+    async def play(self, ctx: commands.Context, *arg: str):
         await self.connect(ctx, ctx.message.author.voice.channel)
 
         self.queue.addSongToQueue(self.__load_song(arg))
@@ -47,7 +47,7 @@ class Player(commands.Cog):
         else:
             await ctx.send("Added song to Queue")
 
-    async def __playSong(self, ctx):
+    async def __playSong(self, ctx: commands.Context):
         if not self.queue.queue:
             self.is_playing = False
             return
@@ -75,11 +75,11 @@ class Player(commands.Cog):
         self.voice_client.source = discord.PCMVolumeTransformer(self.voice_client.source, volume=self.voice_volume)
 
     @commands.command()
-    async def skip(self, ctx):
+    async def skip(self, ctx: commands.Context):
         self.voice_client.stop()
         self.__playNextSong(ctx, 0)
 
-    def __playNextSong(self, ctx, e):
+    def __playNextSong(self, ctx: commands.Context, e):
         """
         Function to create asyncio task to play the next song
         Called in playSong() through lambda
@@ -118,9 +118,9 @@ class Player(commands.Cog):
             return Song(title, url, source, thumbnail)
 
     @commands.command(pass_context=True)
-    async def volume(self, ctx, args):
+    async def volume(self, ctx: commands.Context, args: int):
         try:
-            vol = int(args)
+            vol = args
             if vol < 1:
                 vol = 1
             if vol > 100:
@@ -136,13 +136,13 @@ class Player(commands.Cog):
             return
 
     @commands.command(pass_context=True)
-    async def leave(self, ctx):
+    async def leave(self, ctx: commands.Context):
         if self.voice_client and self.voice_client.is_connected():
             await ctx.send("See u next time")
             await self.voice_client.disconnect()
 
     @commands.command()
-    async def queue(self, ctx):
+    async def queue(self, ctx: commands.Context):
         if not self.queue.queue:
             await ctx.send("Queue is empty")
             return
