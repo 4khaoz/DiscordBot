@@ -12,6 +12,8 @@ class Player(commands.Cog):
         self.is_playing = False
         self.bot = bot
         self.queue = SongQueue()
+        self.bRepeating = False
+        self.current_song = None
 
     @commands.command()
     async def connect(self, ctx: commands.Context, channel: discord.VoiceChannel):
@@ -40,19 +42,31 @@ class Player(commands.Cog):
     async def play(self, ctx: commands.Context, *arg: str):
         await self.connect(ctx, ctx.message.author.voice.channel)
 
-        self.queue.addSongToQueue(self.__load_song(arg))
+        song = self.__load_song(arg)
+        self.queue.addSongToQueue(song)
 
         if not self.is_playing:
             await self.__playSong(ctx)
         else:
-            await ctx.send("Added song to Queue")
+            # Sending Embed of Song
+            embed = discord.Embed(
+                title=f"Added to Queue",
+                description=f"{song.title}"
+            )
+            embed.set_thumbnail(url=song.thumbnail)
+            await ctx.send(embed=embed)
 
     async def __playSong(self, ctx: commands.Context):
         if not self.queue.queue:
             self.is_playing = False
+            await ctx.send("All songs played -> Queue is empty")
             return
 
-        song = self.queue.getNextSong()
+        if self.bRepeating and self.current_song:
+            song = self.current_song
+        else:
+            song = self.queue.getNextSong()
+            self.current_song = song
         self.is_playing = True
 
         # Sending Embed of Song
@@ -140,6 +154,15 @@ class Player(commands.Cog):
         if self.voice_client and self.voice_client.is_connected():
             await ctx.send("See u next time")
             await self.voice_client.disconnect()
+
+    @commands.command(pass_context=True)
+    async def loop(self, ctx: commands.Context):
+        self.bRepeating = not self.bRepeating
+        if self.bRepeating:
+            await ctx.send("Looping current song")
+        else:
+            await ctx.send("Stopped looping song")
+
 
     @commands.command()
     async def queue(self, ctx: commands.Context):
