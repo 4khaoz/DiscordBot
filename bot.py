@@ -25,8 +25,14 @@ async def on_ready():
     global guild
     global proto
 
+    global god_role
+    global king_role
+
     guild = bot.get_guild(int(os.getenv('GUILDID')))
     proto = bot.get_channel(int(os.getenv('PROTOCOL')))
+
+    god_role = discord.utils.find(lambda r: r.name == 'God', guild.roles)
+    king_role = discord.utils.find(lambda r: r.name == 'King', guild.roles)
 
     bot.add_cog(music.player.Player(bot))
     bot.add_cog(channel.channelmanager.ChannelManager(bot))
@@ -49,6 +55,9 @@ async def on_message_delete(message):
 @bot.event
 async def on_voice_state_update(member, before, after):
     if member == bot.user:
+        return
+
+    if god_role in member.roles or king_role in member.roles:
         return
 
     if not (before.self_mute or before.self_deaf) and not (after.self_mute or after.self_deaf):
