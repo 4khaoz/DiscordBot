@@ -1,0 +1,4 @@
+# Python packages needed on setup
+discord.py
+python-dotenv
+youtube-dl

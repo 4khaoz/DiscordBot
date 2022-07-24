@@ -1,0 +1,8 @@
+# Stop service
+sudo systemctl stop discord_bot.service
+
+# Start service
+sudo systemctl start discord_bot.service
+
+# Load changes to systemctl
+sudo systemctl daemon-reload
