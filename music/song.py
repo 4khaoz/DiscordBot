@@ -13,11 +13,6 @@ class SongQueue:
     def addSongToQueue(self, s: Song):
         self.queue.append(s)
 
-    def getSong(self):
-        if not self.queue:
-            return None
-        return self.queue[0]
-
     def getNextSong(self):
         if not self.queue:
             return None

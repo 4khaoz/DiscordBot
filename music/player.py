@@ -57,14 +57,13 @@ class Player(commands.Cog):
             await ctx.send(embed=embed)
 
     async def __playSong(self, ctx: commands.Context):
-        if not self.queue.queue:
-            self.is_playing = False
-            await ctx.send("All songs played -> Queue is empty")
-            return
-
         if self.bRepeating and self.current_song:
             song = self.current_song
         else:
+            if not self.queue.queue:
+                self.is_playing = False
+                await ctx.send("All songs played -> Queue is empty")
+                return
             song = self.queue.getNextSong()
             self.current_song = song
         self.is_playing = True
